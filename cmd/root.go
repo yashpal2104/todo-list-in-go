@@ -5,7 +5,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strconv"
+	"time"
+
+	"github.com/yashpal2104/todo-list-in-go/internal/csvutil"
 
 	"github.com/spf13/cobra"
 )
@@ -19,85 +24,145 @@ func Execute() {
 	}
 }
 
+type Item struct {
+	ID          int
+	Description string
+	CreatedAt   time.Time
+}
+
+var data []Item
+
+var start = time.Now()
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "todo",
-	Short: "It helps you select fruits of different sizes and test out the Renovate tool",
-	Long:  `This CLI is designed for you to select fruits based on different sizes blah blah blah you don't care about this even I don't care about it what we are trying to do here is to test out the Renovate tool to automate dependency updates and patch regular security threats through making PRs to fix it.`,
+	Use:   "tasks",
+	Short: "TODO CLI App",
+	Long:  `This CLI helps manage tasks`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) {
-
-	// },
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Hello")
+	},
 }
 
 var ListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "lists all the fruits",
+	Short: "lists all the tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		for i, description := range data.FileParsedData {
-			fmt.Println("%d. %+v\n", description, i+1, description)
+		for _, item := range data {
+			fmt.Println(strconv.Itoa(item.ID) + "." + item.Description + time.Since(start).String())
 		}
 	},
 }
 
-var FilterCmd = &cobra.Command{
-	Use:   "filter",
-	Short: "filters the fruits",
+var AddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "add all the tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		for i, description := range data.FileParsedData {
-			// fmt.Println("%d. %+v\n", description, i+1, description)
-			fmt.Println("Fruit: %s Color: %s", description.Fruit, description.Color, i+1)
-
+		if len(os.Args) < 2 {
+			fmt.Println("Expected 'add' command")
+			return
 		}
-	},
-}
-
-var colorFlag string
-var sizeFlag string
-
-var Color = &cobra.Command{
-	Use:   "filter",
-	Short: "filters the fruits",
-	Run: func(cmd *cobra.Command, args []string) {
-		for i, description := range data.FileParsedData {
-			// fmt.Println("%d. %+v\n", description, i+1, description)
-			// Example: filter by color passed as the first argument after the command
-			if len(args) > 0 && description.Color == args[0] {
-				colorFlag = description.Color
-				fmt.Println("Fruit: %s Color: %s\n", description.Fruit, description.Color, i+1)
+		switch os.Args[1] {
+		case "add":
+			if len(os.Args) < 3 {
+				fmt.Println("example usage: tasks add <description>")
+				return
 			}
 		}
+		description := os.Args[2]
+		fmt.Println("Adding task:", description)
+
+		
+		// for i, description := range os.Args[2:] {
+		// data = append(data, Item{ID: i + 1, Description: description, CreatedAt: time.Since(start)})
+
+		// fmt.Println("%d. %+v\n", description, i+1, description)
+		// }
+		newItem := Item{
+			ID: len(data) + 1,
+			Description: description[2:],
+			CreatedAt: time.Now(),
+		}
+
+		data = append(data, newItem)
+		
+		records := [][]string{{"ID", "Description", "CreatedAt"}}
+		for _, item := range data {
+			fmt.Println(strconv.Itoa(item.ID) + "." + item.Description + " " + item.CreatedAt.String())
+			records = append(records, []string{
+				strconv.Itoa(item.ID), item.Description, HumanizeTimeSince(item.CreatedAt),
+			})
+		}
+		err := csvutil.WriteCSVRecord("output.csv", records)
+		if err != nil {
+			log.Fatalf("error writing CSV: %v", err)
+		}
+		// fmt.Println(records[1][0])
 	},
 }
 
-var Size = &cobra.Command{
-	Use:   "size",
-	Short: "filters the fruits based on size",
-	Run: func(cmd *cobra.Command, args []string) {
-		for i, description := range data.FileParsedData {
-			// fmt.Println("%d. %+v\n", description, i+1, description)
-			// Example: filter by color passed as the first argument after the command
-			if len(args) > 0 && description.Size == args[0] {
-				sizeFlag = description.Size
-				fmt.Println("Fruit: %s Size: %s\n", description.Fruit, description.Size, i+1)
-			}
-		}
-	},
-}
+// var FilterCmd = &cobra.Command{
+// 	Use:   "filter",
+// 	Short: "filters the fruits",
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		for i, description := range data.FileParsedData {
+// 			// fmt.Println("%d. %+v\n", description, i+1, description)
+// 			fmt.Println("Fruit: %s Color: %s", description.Fruit, description.Color, i+1)
+
+// 		}
+// 	},
+// }
+
+// var colorFlag string
+// var sizeFlag string
+
+// var Color = &cobra.Command{
+// 	Use:   "filter",
+// 	Short: "filters the fruits",
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		for i, description := range data.FileParsedData {
+// 			// fmt.Println("%d. %+v\n", description, i+1, description)
+// 			// Example: filter by color passed as the first argument after the command
+// 			if len(args) > 0 && description.Color == args[0] {
+// 				colorFlag = description.Color
+// 				fmt.Println("Fruit: %s Color: %s\n", description.Fruit, description.Color, i+1)
+// 			}
+// 		}
+// 	},
+// }
+
+// var Size = &cobra.Command{
+// 	Use:   "size",
+// 	Short: "filters the fruits based on size",
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		for i, description := range data.FileParsedData {
+// 			// fmt.Println("%d. %+v\n", description, i+1, description)
+// 			// Example: filter by color passed as the first argument after the command
+// 			if len(args) > 0 && description.Size == args[0] {
+// 				sizeFlag = description.Size
+// 				fmt.Println("Fruit: %s Size: %s\n", description.Fruit, description.Size, i+1)
+// 			}
+// 		}
+// 	},
+// }
 
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	rootCmd.AddCommand(ListCmd)
+	rootCmd.AddCommand(AddCmd)
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.json-viewer-cli.yaml)")
+	rootCmd.PersistentFlags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.AddCommand(ListCmd)
-	rootCmd.AddCommand(FilterCmd)
-	FilterCmd.Flags().StringVarP(&colorFlag, "--color", "c", "", "Filter fruits by color")
-	FilterCmd.Flags().StringVarP(&sizeFlag, "--size", "s", "", "Filter fruits by size")
+	// // Cobra also supports local flags, which will only run
+	// // when this action is called directly.
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.AddCommand(ListCmd)
+	// rootCmd.AddCommand(FilterCmd)
+	// FilterCmd.Flags().StringVarP(&colorFlag, "--color", "c", "", "Filter fruits by color")
+	// FilterCmd.Flags().StringVarP(&sizeFlag, "--size", "s", "", "Filter fruits by size")
 }

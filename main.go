@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"os"
 	"text/tabwriter"
-	"github.com/yash2104/todo-list-in-go/cmd"
+
+	"github.com/yashpal2104/todo-list-in-go/cmd"
 )
 
 func main() {
-	
+
 	cmd.Execute() // Execute the root command from the cmd package
 
 	fmt.Println("Thank you for using the Todo CLI application!")
 	// os.Exit(0) // Exit the application gracefully
 }
-
 
 func tabWriterExample() {
 	fmt.Println("Todo list in GO")
