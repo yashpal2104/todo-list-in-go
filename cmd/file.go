@@ -1,9 +1,12 @@
-package csvutil
+package cmd
 
 import (
+	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 	"syscall"
+
 )
 
 func loadFile(filepath string) (*os.File, error) {
@@ -24,4 +27,22 @@ func loadFile(filepath string) (*os.File, error) {
 func closeFile(f *os.File) error {
 	syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
 	return f.Close()
+}
+
+func appendTaskToCSV(filename string, item Item) error {
+    file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+        return err
+    }
+    defer file.Close()
+
+    writer := csv.NewWriter(file)
+    defer writer.Flush()
+
+    record := []string{
+        strconv.Itoa(item.ID),
+        item.Description,
+        HumanizeTimeSince(item.CreatedAt),
+    }
+    return writer.Write(record)
 }

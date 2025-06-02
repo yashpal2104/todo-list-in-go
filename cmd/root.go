@@ -1,6 +1,7 @@
 /*
 Copyright © 2025 Yash  <EMAIL ADDRESS>
 */
+
 package cmd
 
 import (
@@ -10,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/yashpal2104/todo-list-in-go/internal/csvutil"
 
 	"github.com/spf13/cobra"
 )
@@ -60,19 +60,24 @@ var AddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "add all the tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(os.Args) < 2 {
-			fmt.Println("Expected 'add' command")
-			return
-		}
-		switch os.Args[1] {
-		case "add":
-			if len(os.Args) < 3 {
-				fmt.Println("example usage: tasks add <description>")
-				return
-			}
-		}
-		description := os.Args[2]
-		fmt.Println("Adding task:", description)
+		// if len(Args) < 2 {
+		// 	fmt.Println("Expected 'add' command")
+		// 	return
+		// }
+		// switch Args[1] {
+		// case "add":
+		// 	if len(Args) < 3 {
+		// 		fmt.Println("example usage: tasks add <description>")
+		// 		return
+		// 	}
+		// }
+		// description := Args[2]
+		// fmt.Println("Adding task:", description)
+
+		if len(args) == 0 {
+            fmt.Println("example usage: tasks add <description1> <description2> ...")
+            return
+        }
 
 		
 		// for i, description := range os.Args[2:] {
@@ -80,13 +85,18 @@ var AddCmd = &cobra.Command{
 
 		// fmt.Println("%d. %+v\n", description, i+1, description)
 		// }
-		newItem := Item{
+		for _, description := range args{
+			newItem := Item{
 			ID: len(data) + 1,
-			Description: description[2:],
+			Description: description,
 			CreatedAt: time.Now(),
 		}
-
 		data = append(data, newItem)
+		fmt.Println("Adding task:", description)
+		}
+		
+		// data = append(data, newItem)
+
 		
 		records := [][]string{{"ID", "Description", "CreatedAt"}}
 		for _, item := range data {
@@ -95,10 +105,13 @@ var AddCmd = &cobra.Command{
 				strconv.Itoa(item.ID), item.Description, HumanizeTimeSince(item.CreatedAt),
 			})
 		}
-		err := csvutil.WriteCSVRecord("output.csv", records)
-		if err != nil {
+		// for _, record := range records{
+			err := AppendCSVRecord("output.csv", records)
+			if err != nil {
 			log.Fatalf("error writing CSV: %v", err)
 		}
+		// }
+		
 		// fmt.Println(records[1][0])
 	},
 }
