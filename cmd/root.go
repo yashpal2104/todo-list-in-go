@@ -125,7 +125,6 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	rootCmd.AddCommand(ListCmd)
 	rootCmd.AddCommand(AddCmd)
 	// abs, _ := filepath.Abs(csvFilePath)
