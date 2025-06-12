@@ -11,8 +11,8 @@ import (
 func main() {
 
 	cmd.Execute() // Execute the root command from the cmd package
-
-	fmt.Println("Thank you for using the Todo CLI application!")
+	
+	fmt.Println("\nThank you for using the Todo CLI application!")
 	// os.Exit(0) // Exit the application gracefully
 }
 

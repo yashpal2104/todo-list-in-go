@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
+	"text/tabwriter"
 	"time"
 
+	// "path/filepath"
 
+	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
+	// "github.com/mergestat/timediff"
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -31,8 +34,8 @@ type Item struct {
 }
 
 var data []Item
-
-var start = time.Now()
+var csvFilePath = "./output.csv"
+var w *tabwriter.Writer
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -50,9 +53,32 @@ var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "lists all the tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		for _, item := range data {
-			fmt.Println(strconv.Itoa(item.ID) + "." + item.Description + time.Since(start).String())
+
+		if !CheckFileIsExist(csvFilePath) {
+			fmt.Println("There are currently no tasks. Please use the 'tasks add <description>' to add your tasks")
+
+			return
 		}
+
+		taskList, err := ReadAndWriteCSVTasks(csvFilePath)
+		if err != nil {
+			fmt.Errorf("Trouble loading the tasks list: %v\n", err)
+			return
+		}
+		if len(taskList) == 0 {
+			fmt.Println("There are currently no tasks. Please use the 'tasks add <description>' to add your tasks")
+			return
+		}
+		// for _, item := range taskList {
+		// 	fmt.Printf("%d. %s (%s)\n", item.ID, item.Description, HumanizeTimeSince(item.CreatedAt))
+		// }
+		fmt.Fprintf(w, "ID\tDescription\tCreatedAt\n")
+		for _, item := range taskList {
+			fmt.Fprintf(w, "%d\t%s\t%s\n", item.ID, item.Description, timediff.TimeDiff(item.CreatedAt))
+		}
+		w.Flush()
+		// fmt.Fprintln(w, "ID\tDescription\tCreatedAt")
+
 	},
 }
 
@@ -165,9 +191,11 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	rootCmd.AddCommand(ListCmd)
 	rootCmd.AddCommand(AddCmd)
-
+	// abs, _ := filepath.Abs(csvFilePath)
+	// fmt.Println("Checking file at:", abs)
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.json-viewer-cli.yaml)")
 	rootCmd.PersistentFlags().BoolP("toggle", "t", false, "Help message for toggle")
 
