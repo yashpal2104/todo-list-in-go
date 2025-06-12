@@ -86,111 +86,45 @@ var AddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "add all the tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		// if len(Args) < 2 {
-		// 	fmt.Println("Expected 'add' command")
-		// 	return
-		// }
-		// switch Args[1] {
-		// case "add":
-		// 	if len(Args) < 3 {
-		// 		fmt.Println("example usage: tasks add <description>")
-		// 		return
-		// 	}
-		// }
-		// description := Args[2]
-		// fmt.Println("Adding task:", description)
 
 		if len(args) == 0 {
-            fmt.Println("example usage: tasks add <description1> <description2> ...")
-            return
-        }
-
-		
-		// for i, description := range os.Args[2:] {
-		// data = append(data, Item{ID: i + 1, Description: description, CreatedAt: time.Since(start)})
-
-		// fmt.Println("%d. %+v\n", description, i+1, description)
-		// }
-		for _, description := range args{
+			fmt.Println("example usage: tasks add <description1> <description2> ...")
+			return
+		}
+		// fmt.Fprintln(w, "ID\tDescription\tCreatedAt\n")
+		existingTasks, _ := ReadAndWriteCSVTasks(csvFilePath)
+		nextID := len(existingTasks) + 1
+		for _, description := range args {
 			newItem := Item{
-			ID: len(data) + 1,
-			Description: description,
-			CreatedAt: time.Now(),
-		}
-		data = append(data, newItem)
-		fmt.Println("Adding task:", description)
-		}
-		
-		// data = append(data, newItem)
+				ID:          nextID, // make a function to increase the ID
+				Description: description,
+				CreatedAt:   time.Now(),
+			}
+			nextID++
+			fmt.Println("Adding task. Please Wait...\n")
 
-		
-		records := [][]string{{"ID", "Description", "CreatedAt"}}
-		for _, item := range data {
-			fmt.Println(strconv.Itoa(item.ID) + "." + item.Description + " " + item.CreatedAt.String())
-			records = append(records, []string{
-				strconv.Itoa(item.ID), item.Description, HumanizeTimeSince(item.CreatedAt),
-			})
-		}
-		// for _, record := range records{
-			err := AppendCSVRecord("output.csv", records)
+			data = append(data, newItem)
+			// fmt.Fprintf(w, "%d\t%s\t%s\n", newItem.ID, newItem.Description, timediff.TimeDiff(newItem.CreatedAt))
+			// Append only the new item to the CSV
+			// if !CheckFileIsExist(csvFilePath) {
+			err := AppendCSVRecord(csvFilePath, newItem)
 			if err != nil {
-			log.Fatalf("error writing CSV: %v", err)
+				log.Fatalf("error writing CSV: %v", err)
+			}
+			fmt.Println("Added task: ", newItem.Description)
+
 		}
 		// }
-		
-		// fmt.Println(records[1][0])
+		w.Flush()
+
 	},
 }
-
-// var FilterCmd = &cobra.Command{
-// 	Use:   "filter",
-// 	Short: "filters the fruits",
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		for i, description := range data.FileParsedData {
-// 			// fmt.Println("%d. %+v\n", description, i+1, description)
-// 			fmt.Println("Fruit: %s Color: %s", description.Fruit, description.Color, i+1)
-
-// 		}
-// 	},
-// }
-
-// var colorFlag string
-// var sizeFlag string
-
-// var Color = &cobra.Command{
-// 	Use:   "filter",
-// 	Short: "filters the fruits",
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		for i, description := range data.FileParsedData {
-// 			// fmt.Println("%d. %+v\n", description, i+1, description)
-// 			// Example: filter by color passed as the first argument after the command
-// 			if len(args) > 0 && description.Color == args[0] {
-// 				colorFlag = description.Color
-// 				fmt.Println("Fruit: %s Color: %s\n", description.Fruit, description.Color, i+1)
-// 			}
-// 		}
-// 	},
-// }
-
-// var Size = &cobra.Command{
-// 	Use:   "size",
-// 	Short: "filters the fruits based on size",
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		for i, description := range data.FileParsedData {
-// 			// fmt.Println("%d. %+v\n", description, i+1, description)
-// 			// Example: filter by color passed as the first argument after the command
-// 			if len(args) > 0 && description.Size == args[0] {
-// 				sizeFlag = description.Size
-// 				fmt.Println("Fruit: %s Size: %s\n", description.Fruit, description.Size, i+1)
-// 			}
-// 		}
-// 	},
-// }
 
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	rootCmd.AddCommand(ListCmd)
 	rootCmd.AddCommand(AddCmd)
