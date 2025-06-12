@@ -6,6 +6,9 @@ import (
 	"os"
 	"strconv"
 	"syscall"
+	"time"
+
+	// "github.com/mergestat/timediff"
 
 )
 
@@ -42,7 +45,8 @@ func appendTaskToCSV(filename string, item Item) error {
     record := []string{
         strconv.Itoa(item.ID),
         item.Description,
-        HumanizeTimeSince(item.CreatedAt),
+        // timediff.TimeDiff(item.CreatedAt),
+		item.CreatedAt.Format(time.RFC3339),
     }
     return writer.Write(record)
 }
