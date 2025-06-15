@@ -35,6 +35,7 @@ type Item struct {
 
 var data []Item
 var csvFilePath = "./output.csv"
+var deleteAll bool
 var w *tabwriter.Writer
 
 // rootCmd represents the base command when called without any subcommands
@@ -116,10 +117,22 @@ var DeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "delete the tasks specified in the args",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
+		if !deleteAll && len(args) == 0 {
 			fmt.Println("example usage: tasks delete <description1> <description2> ...")
 			return
 		}
+		if deleteAll {
+            // Delete all tasks
+            data = []Item{}
+            err := BuildRecordsForCSV()
+            if err != nil {
+                log.Fatal("error deleting all tasks from CSV: ", err)
+            }
+            fmt.Println("All tasks deleted.\n")
+            ListCmd.Run(cmd, []string{})
+            w.Flush()
+            return
+        }
 		_, err := DeleteTasksFromCSV(csvFilePath, args)
 		if err != nil {
 			log.Fatal("error deleting the tasks from CSV: ", err)
@@ -147,6 +160,7 @@ func init() {
 	// fmt.Println("Checking file at:", abs)
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.json-viewer-cli.yaml)")
 	rootCmd.PersistentFlags().BoolP("toggle", "t", false, "Help message for toggle")
+	DeleteCmd.Flags().BoolVarP(&deleteAll, "all", "a", false, "Delete all tasks")
 
 	// // Cobra also supports local flags, which will only run
 	// // when this action is called directly.
