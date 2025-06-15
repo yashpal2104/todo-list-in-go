@@ -74,7 +74,7 @@ var ListCmd = &cobra.Command{
 		// }
 		fmt.Fprintf(w, "ID\tDescription\tCreatedAt\n")
 		for _, item := range taskList {
-			fmt.Fprintf(w, "%d\t%s\t%s\n", item.ID, item.Description, timediff.TimeDiff(item.CreatedAt))
+			fmt.Fprintf(w, "%d\t%s\t%s\t\n", item.ID, item.Description, timediff.TimeDiff(item.CreatedAt))
 		}
 		w.Flush()
 		// fmt.Fprintln(w, "ID\tDescription\tCreatedAt")
@@ -91,30 +91,45 @@ var AddCmd = &cobra.Command{
 			fmt.Println("example usage: tasks add <description1> <description2> ...")
 			return
 		}
-		// fmt.Fprintln(w, "ID\tDescription\tCreatedAt\n")
 		existingTasks, _ := ReadAndWriteCSVTasks(csvFilePath)
-		nextID := len(existingTasks) + 1
+		nextID := getLastID(existingTasks) + 1
 		for _, description := range args {
 			newItem := Item{
-				ID:          nextID, // make a function to increase the ID
+				ID:          nextID,
 				Description: description,
 				CreatedAt:   time.Now(),
 			}
 			nextID++
-			fmt.Println("Adding task. Please Wait...\n")
-
 			data = append(data, newItem)
-			// fmt.Fprintf(w, "%d\t%s\t%s\n", newItem.ID, newItem.Description, timediff.TimeDiff(newItem.CreatedAt))
-			// Append only the new item to the CSV
-			// if !CheckFileIsExist(csvFilePath) {
 			err := AppendCSVRecord(csvFilePath, newItem)
 			if err != nil {
 				log.Fatalf("error writing CSV: %v", err)
 			}
 			fmt.Println("Added task: ", newItem.Description)
-
 		}
-		// }
+		w.Flush()
+
+	},
+}
+
+var DeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "delete the tasks specified in the args",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			fmt.Println("example usage: tasks delete <description1> <description2> ...")
+			return
+		}
+		_, err := DeleteTasksFromCSV(csvFilePath, args)
+		if err != nil {
+			log.Fatal("error deleting the tasks from CSV: ", err)
+		}
+		
+		for _, desc := range args {
+			// desc is each description passed as an argument
+		fmt.Println("Deleted task: ", desc)
+		}
+		ListCmd.Run(cmd, []string{})
 		w.Flush()
 
 	},
@@ -127,6 +142,7 @@ func init() {
 	w = tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	rootCmd.AddCommand(ListCmd)
 	rootCmd.AddCommand(AddCmd)
+	rootCmd.AddCommand(DeleteCmd)
 	// abs, _ := filepath.Abs(csvFilePath)
 	// fmt.Println("Checking file at:", abs)
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.json-viewer-cli.yaml)")
