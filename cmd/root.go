@@ -144,7 +144,6 @@ var DeleteCmd = &cobra.Command{
 		}
 		ListCmd.Run(cmd, []string{})
 		w.Flush()
-
 	},
 }
 
