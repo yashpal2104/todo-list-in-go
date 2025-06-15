@@ -1,4 +1,4 @@
-# Todo List in Go
+# Todo CLI in Go
 
 A simple, fast, and extensible command-line Todo List application written in Go. This project helps you manage your daily tasks efficiently using a CSV file for persistent storage. Built with the [Cobra](https://github.com/spf13/cobra) library for a rich CLI experience.
 
