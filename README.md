@@ -1,12 +1,13 @@
 # Todo CLI in Go
 
-A simple, fast, and extensible command-line Todo List application written in Go. This project helps you manage your daily tasks efficiently using a CSV file for persistent storage. Built with the [Cobra](https://github.com/spf13/cobra) library for a rich CLI experience.
+A simple, fast, and extensible command-line Todo List application written in Go. This project helps you manage your daily tasks efficiently using a CSV file for persistent storage. Built with the power of Go!
 
 ## Features
 
 - Add new tasks quickly from the command line
 - List all tasks in a well-formatted table
 - Delete tasks by description
+- Delete all tasks at once using the `-a` flag
 - Tasks are timestamped with their creation date
 - Persistent storage to CSV file
 - Uses file locking for safe concurrent access
@@ -43,12 +44,13 @@ Run the CLI application:
 
 #### Available Commands
 
-| Command         | Description                          |
-|-----------------|--------------------------------------|
-| `add`           | Add a new task                       |
-| `list`          | List all tasks                       |
-| `delete`        | Delete a task by description         |
-| `help`          | Show help for any command            |
+| Command                | Description                          |
+|------------------------|--------------------------------------|
+| `add`                  | Add a new task                       |
+| `list`                 | List all tasks                       |
+| `delete`               | Delete a task by description         |
+| `delete -a`            | Delete all tasks at once             |
+| `help`                 | Show help for any command            |
 
 Example usage:
 
@@ -64,6 +66,18 @@ Example usage:
   ```sh
   ./tasks delete "Buy groceries"
   ```
+- Delete all tasks:
+  ```sh
+  ./tasks delete -a
+  ```
+  Output:
+  ```
+  All tasks deleted.
+
+  There are currently no tasks. Please use the 'tasks add <description>' to add your tasks
+
+  Thank you for using the Todo CLI application!
+  ```
 
 ### How It Works
 
@@ -72,6 +86,7 @@ Example usage:
 - Adding a task appends a new entry to the CSV file.
 - Listing tasks reads and displays all tasks in a formatted table.
 - Deleting tasks removes entries with matching descriptions from the CSV.
+- Deleting all tasks with `delete -a` clears the tasks file.
 
 ### Project Structure
 
