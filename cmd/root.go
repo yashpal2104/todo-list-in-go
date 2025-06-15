@@ -122,17 +122,17 @@ var DeleteCmd = &cobra.Command{
 			return
 		}
 		if deleteAll {
-			// Delete all tasks
-			data = []Item{}
-			err := BuildRecordsForCSV()
-			if err != nil {
-				log.Fatal("error deleting all tasks from CSV: ", err)
-			}
-			fmt.Println("All tasks deleted.\n")
-			ListCmd.Run(cmd, []string{})
-			w.Flush()
-			return
-		}
+            // Delete all tasks
+            data = []Item{}
+            err := BuildRecordsForCSV()
+            if err != nil {
+                log.Fatal("error deleting all tasks from CSV: ", err)
+            }
+            fmt.Println("All tasks deleted.\n")
+            ListCmd.Run(cmd, []string{})
+            w.Flush()
+            return
+        }
 		_, err := DeleteTasksFromCSV(csvFilePath, args)
 		if err != nil {
 			log.Fatal("error deleting the tasks from CSV: ", err)
