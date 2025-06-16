@@ -133,39 +133,3 @@ func getLastID(tasks []Item) int {
 	return lastID
 }
 
-// // Skip header
-// _, err = reader.ReadAll()
-// if err != nil {
-// 	return nil, err
-// }
-
-// for {
-// 	record, err := reader.Read()
-// 	if err == io.EOF {
-// 		break
-// 	}
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if len(record) < 3 {
-// 		continue
-// 	}
-// 	id, _ := strconv.Atoi(record[0])
-// 	createdAtStr := record[2]
-
-// 	// Use time.Time type here
-// 	// convert string value to a predefined layout
-// 	createdAt, err := time.Parse(time.RFC3339, createdAtStr)
-// 	if err != nil {
-// 		// handle parse error, e.g. skip or use time.Now()
-// 		createdAt = time.Now()
-// 	}
-// 	tasks = append(tasks, Item{
-// 		ID:          id,
-// 		Description: record[1],
-// 		// CreatedAt: time.Now(), //Replace with parsed time if needed
-// 		CreatedAt: createdAt,
-// 	})
-// }
-// return tasks, nil
-// }

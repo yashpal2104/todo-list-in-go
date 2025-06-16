@@ -122,25 +122,25 @@ var DeleteCmd = &cobra.Command{
 			return
 		}
 		if deleteAll {
-            // Delete all tasks
-            data = []Item{}
-            err := BuildRecordsForCSV()
-            if err != nil {
-                log.Fatal("error deleting all tasks from CSV: ", err)
-            }
-            fmt.Println("All tasks deleted.\n")
-            ListCmd.Run(cmd, []string{})
-            w.Flush()
-            return
-        }
+			// Delete all tasks
+			data = []Item{}
+			err := BuildRecordsForCSV()
+			if err != nil {
+				log.Fatal("error deleting all tasks from CSV: ", err)
+			}
+			fmt.Println("All tasks deleted.\n")
+			ListCmd.Run(cmd, []string{})
+			w.Flush()
+			return
+		}
 		_, err := DeleteTasksFromCSV(csvFilePath, args)
 		if err != nil {
 			log.Fatal("error deleting the tasks from CSV: ", err)
 		}
-		
+
 		for _, desc := range args {
 			// desc is each description passed as an argument
-		fmt.Println("Deleted task: ", desc)
+			fmt.Println("Deleted task: ", desc)
 		}
 		ListCmd.Run(cmd, []string{})
 		w.Flush()
@@ -158,15 +158,11 @@ func init() {
 	rootCmd.AddCommand(DeleteCmd)
 	// abs, _ := filepath.Abs(csvFilePath)
 	// fmt.Println("Checking file at:", abs)
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.json-viewer-cli.yaml)")
+
 	rootCmd.PersistentFlags().BoolP("toggle", "t", false, "Help message for toggle")
 	DeleteCmd.Flags().BoolVarP(&deleteAll, "all", "a", false, "Delete all tasks")
 
 	// // Cobra also supports local flags, which will only run
 	// // when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	// rootCmd.AddCommand(ListCmd)
-	// rootCmd.AddCommand(FilterCmd)
-	// FilterCmd.Flags().StringVarP(&colorFlag, "--color", "c", "", "Filter fruits by color")
-	// FilterCmd.Flags().StringVarP(&sizeFlag, "--size", "s", "", "Filter fruits by size")
+	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
