@@ -1,0 +1,19 @@
+# Ignore the Go binary if built locally
+~./tasks
+
+# Ignore the already made csv file
+~./output.csv
+
+# Go build artifacts
+*.exe
+*.out
+*.test
+
+.git
+.gitignore
+
+# Dockerignore
+.dockerignore
+
+# Ignore VScode settings
+.vscode
